@@ -1,0 +1,37 @@
+---
+- name: Загрузка исходников для Python 3.9.6
+  ansible.builtin.get_url:
+    url: https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz
+    dest: /home/user/Python-3.9.6.tgz
+  become: true
+
+- name: Распаковка исходников Python 3.9.6
+  ansible.builtin.unarchive:
+    src: /home/user/Python-3.9.6.tgz
+    dest: /home/user
+    remote_src: yes
+  become: true
+
+- name: Компиляция и установка Python 3.9.6
+  ansible.builtin.shell: |
+    cd /home/user/Python-3.9.6
+    ./configure --prefix=/opt/python3
+    make
+    make install
+  become: true
+
+- name: Обновление pip до последней версии
+  ansible.builtin.command:
+    cmd: /opt/python3/bin/pip3.9 install --upgrade pip
+  become: true
+
+- name: Установка Python пакетов
+  ansible.builtin.pip:
+    name:
+      - pycurl
+      - mysqlclient
+      - certifi
+      - redis
+      - sentry-sdk
+    executable: /opt/python3/bin/pip3.9
+  become: true

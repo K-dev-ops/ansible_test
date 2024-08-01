@@ -1,0 +1,84 @@
+---
+- name: Установка пакета nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Копирование конфигa файла nginx
+  ansible.builtin.copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+
+- name: Копирование дефолт конфига default.conf
+  ansible.builtin.copy:
+    src: default.conf
+    dest: /etc/nginx/default.conf
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+
+- name: Перезапуск cлужбы nginx для применения новых настроек
+  ansible.builtin.systemd:
+    name: nginx
+    state: restarted
+
+- name: Копирование конфига logrotate для nginx
+  ansible.builtin.copy:
+    src: nginx_logrotate.conf
+    dest: /etc/logrotate.d/nginx
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Перезапуск logrotate для применения новой конфигурации
+  ansible.builtin.systemd:
+    name: logrotate
+    state: restarted
+
+# Создание структуры каталогов
+- name: Создание директории /etc/nginx/projects_conf
+  ansible.builtin.file:
+    path: /etc/nginx/projects_conf
+    state: directory
+    owner: deploy
+    group: deploy
+    mode: 0755
+
+- name: Создание директории /etc/nginx/projects
+  ansible.builtin.file:
+    path: /etc/nginx/projects
+    state: directory
+    owner: deploy
+    group: deploy
+    mode: 0755
+
+- name: Создание директории /etc/nginx/projects/panels
+  ansible.builtin.file:
+    path: /etc/nginx/projects/panels
+    state: directory
+    owner: deploy
+    group: deploy
+    mode: 0755
+
+- name: Установка прав доступа на директорию /etc/nginx/projects
+  ansible.builtin.file:
+    path: /etc/nginx/projects
+    state: directory
+    recurse: yes
+    owner: deploy
+    group: deploy
+    mode: 0777
+
+- name: Создание директории /var/www/server/frontend/shared/runtime/GeoIP
+  ansible.builtin.file:
+    path: /var/www/server/frontend/shared/runtime/GeoIP
+    state: directory
+    owner: deploy
+    group: deploy
+    mode: 0755

@@ -1,0 +1,12 @@
+---
+- name: Удаление дефолтного пользователя debian
+  ansible.builtin.user:
+    name: debian
+    state: absent
+    remove: true
+
+- name: Создание пользователя deploy
+  ansible.builtin.user:
+    name: deploy
+    state: present
+    create_home: yes

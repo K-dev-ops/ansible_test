@@ -1,0 +1,43 @@
+---
+- name: Установка зависимостей
+  ansible.builtin.apt:
+    name:
+      - libfreetype6
+      - libfreetype6-dev
+      - zlib1g
+      - zlib1g-dev
+      - libxml2
+      - libxml2-dev
+      - libxslt1-dev
+      - libxslt1.1
+      - gcc
+      - curl
+      - make
+      - libcurl4-openssl-dev
+      - libssl-dev
+      - default-libmysqlclient-dev
+      - mc
+      - wget
+      - aptitude
+      - unzip
+      - htop
+      - nload
+      - libffi-dev
+      - gnupg2
+      - pkg-config
+      - tcl
+      - git
+      - sendmail
+      - openssl
+      - python3
+      - python3-setuptools
+      - screen
+      - ethtool
+      - nodejs
+      - npm
+      - libtinfo6 
+      - libaio1
+      - libncurses5
+      - libssl1.1
+    state: present
+    update_cache: yes

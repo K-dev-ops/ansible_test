@@ -1,0 +1,22 @@
+---
+- name: Настройка сервера
+  hosts: all
+  become: true
+  vars_files:
+    - keys.yml
+  roles:
+    - dependencies
+    - timezone
+    - user_management
+    - nginx_setup
+    - python_setup
+    - сomposer_setup
+    - kernel_managment
+    - system_managment
+    - ssh_managment
+    - mysql_setup
+    - restart_server
+  
+
+
+

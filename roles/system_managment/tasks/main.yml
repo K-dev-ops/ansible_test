@@ -1,0 +1,28 @@
+---
+- name: Установка параметров в /etc/systemd/system.conf
+  lineinfile:
+    path: /etc/systemd/system.conf
+    line: "DefaultLimitNOFILE=6500000"
+    create: yes
+    state: present
+    regexp: '^DefaultLimitNOFILE='
+
+- name: Изменение лимитов в /etc/security/limits.conf
+  lineinfile:
+    path: /etc/security/limits.conf
+    line: "{{ item }}"
+    create: yes
+    state: present
+  loop:
+    - 'root hard nofile 6500536'
+    - 'root soft nofile 6500535'
+    - '* soft nofile 40000000'
+    - '* hard nofile 40000000'
+
+- name: Перезагрузка systemd
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Перезагрузка конфигурации sysctl
+  ansible.builtin.command: /sbin/sysctl -p
+  become: true

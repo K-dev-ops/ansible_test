@@ -1,0 +1,24 @@
+---
+- name: Установка диапазона локальных портов
+  ansible.builtin.sysctl:
+    name: net.ipv4.ip_local_port_range
+    value: "1024 65535"
+    state: present
+    reload: yes
+
+- name: Установка максимального количества открытых файлов
+  ansible.builtin.sysctl:
+    name: fs.nr_open
+    value: "2000000"
+    state: present
+    reload: yes
+
+- name: Установка максимального количество файловых дескрипторов
+  ansible.builtin.sysctl:
+    name: fs.file-max
+    value: "5000000"
+    state: present
+    reload: yes
+    
+- name: Перезагрузка конфигурации sysctl
+  ansible.builtin.command: sysctl -p  

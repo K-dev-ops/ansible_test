@@ -1,0 +1,23 @@
+---
+- name: Установка зависимостей
+  apt:
+    name: 
+    - php-cli
+    - php-mbstring
+    state: present
+
+- name: Загрузка composer
+  get_url:
+    url: https://getcomposer.org/installer
+    dest: /tmp/composer-setup.php
+    mode: 0755
+
+- name: Установка composer
+  command: php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+  args:
+    creates: /usr/local/bin/composer
+
+- name: Удаление скрипта установки Composer
+  file:
+    path: /tmp/composer-setup.php
+    state: absent

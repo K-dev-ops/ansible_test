@@ -1,0 +1,79 @@
+---
+- name: Скачивание MySQL tarball с сайта mysql.com
+  ansible.builtin.command:
+    cmd: >
+      wget --quiet --show-progress
+      --header="User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+      -O /tmp/mysql-5.7.40-linux-glibc2.12-x86_64.tar.gz
+      https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.40-linux-glibc2.12-x86_64.tar.gz
+  args:
+    creates: /tmp/mysql-5.7.40-linux-glibc2.12-x86_64.tar.gz
+
+- name: Создание группы mysql
+  ansible.builtin.group:
+    name: mysql
+    system: yes
+    state: present
+
+- name: Создание пользователя mysql
+  ansible.builtin.user:
+    name: mysql
+    group: mysql
+    system: yes
+    shell: /bin/false
+    state: present
+
+- name: Извлечение MySQL tarball
+  ansible.builtin.unarchive:
+    src: /tmp/mysql-5.7.40-linux-glibc2.12-x86_64.tar.gz
+    dest: /usr/local/
+    remote_src: yes
+    creates: /usr/local/mysql-5.7.40-linux-glibc2.12-x86_64
+
+- name: Создание символической ссылки на MySQL
+  ansible.builtin.file:
+    src: /usr/local/mysql-5.7.40-linux-glibc2.12-x86_64
+    dest: /usr/local/mysql
+    state: link
+    force: yes
+
+- name: Создание директорий для конфигурации
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: '0750'
+  loop:
+    - /usr/local/mysql/mysql-files
+    - /etc/mysql
+    - /etc/mysql/conf.d
+
+- name: Инициализация MySQL
+  ansible.builtin.command:
+    cmd: "/usr/local/mysql/bin/mysqld --initialize --user=mysql"
+    creates: /usr/local/mysql/data
+
+- name: Установка ssl/rsa в соответствии с документацией
+  ansible.builtin.command:
+    cmd: "/usr/local/mysql/bin/mysql_ssl_rsa_setup"
+
+- name: Запуск MySQL
+  ansible.builtin.command:
+    cmd: "/usr/local/mysql/bin/mysqld_safe --user=mysql &"
+
+- name: Ожидание запуска демона и создания сокета
+  ansible.builtin.wait_for:
+    path: /usr/local/mysql/data/mysql.sock
+    timeout: 240
+
+- name: Проверка запуска демона mysqld
+  ansible.builtin.command:
+    cmd: "pgrep mysqld"
+  register: mysql_process
+  failed_when: mysql_process.rc != 0
+
+- name: Установка пароля
+  ansible.builtin.command:
+    cmd: "/usr/local/mysql/bin/mysqladmin -u root password '12345678'"
+  when: not root_password_set_status.stat.exists

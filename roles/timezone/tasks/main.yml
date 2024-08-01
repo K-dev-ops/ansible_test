@@ -1,0 +1,4 @@
+---
+- name: Установка таймзоны сервера на UTC
+  ansible.builtin.command:
+    cmd: timedatectl set-timezone UTC

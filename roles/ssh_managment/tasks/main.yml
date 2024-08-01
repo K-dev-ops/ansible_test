@@ -1,0 +1,43 @@
+---
+- name: Создание директории .ssh для пользователя deploy
+  file:
+    path: /home/deploy/.ssh
+    state: directory
+    owner: deploy
+    group: deploy
+    mode: '0700'
+
+- name: Добавление публичный ключ в authorized_keys
+  copy:
+    dest: /home/deploy/.ssh/authorized_keys
+    content: "{{ id_rsa_pub }}"
+    owner: deploy
+    group: deploy
+    mode: 0600
+
+- name: Создание пустых файлов id_rsa и id_rsa.pub
+  file:
+    path: "{{ item }}"
+    state: touch
+    owner: deploy
+    group: deploy
+    mode: 0600
+  loop:
+    - /home/deploy/.ssh/id_rsa
+    - /home/deploy/.ssh/id_rsa.pub
+
+- name: Установка приватного ключа
+  copy:
+    dest: /home/deploy/.ssh/id_rsa
+    content: "{{ id_rsa }}"
+    owner: deploy
+    group: deploy
+    mode: 0600
+
+- name: Установка публичного ключа
+  copy:
+    dest: /home/deploy/.ssh/id_rsa.pub
+    content: "{{ id_rsa_pub }}"
+    owner: deploy
+    group: deploy
+    mode: 0644
